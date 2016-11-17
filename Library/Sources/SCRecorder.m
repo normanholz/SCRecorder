@@ -667,6 +667,14 @@ static char* SCRecorderPhotoOptionsContext = "PhotoOptionsContext";
         if ([actualError.localizedDescription isEqualToString:@"Recording Stopped"]) {
             actualError = nil;
             hasComplete = YES;
+        } else {
+            // Patch to make sure we detect 'hasComplete' correctly even though "Recording Stopped" has been localized into a differend string
+            
+            NSNumber *completed = [actualError userInfo][AVErrorRecordingSuccessfullyFinishedKey];
+            if ([completed boolValue]) {
+                actualError = nil;
+                hasComplete = YES;
+            }
         }
         
         [_session appendRecordSegmentUrl:outputFileURL info:[self _createSegmentInfo] error:actualError completionHandler:^(SCRecordSessionSegment *segment, NSError *error) {
